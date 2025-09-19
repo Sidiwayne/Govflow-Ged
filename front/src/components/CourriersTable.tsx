@@ -6,7 +6,7 @@ import {
   Chip,
   Typography,
 } from '@mui/material';
-import { DataGrid, GridColDef, GridRenderCellParams, GridActionsCellItem } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { Courrier } from '../types/courrier';
 
 interface CourriersTableProps {
@@ -14,10 +14,7 @@ interface CourriersTableProps {
   height?: number;
   pageSize?: number;
   pageSizeOptions?: number[];
-  showActions?: boolean;
-  onViewDetails?: (courrier: Courrier) => void;
-  onEdit?: (courrier: Courrier) => void;
-  onArchive?: (courrier: Courrier) => void;
+  onRowClick?: (courrier: Courrier) => void;
 }
 
 const CourriersTable: React.FC<CourriersTableProps> = ({
@@ -25,10 +22,7 @@ const CourriersTable: React.FC<CourriersTableProps> = ({
   height = 600,
   pageSize = 10,
   pageSizeOptions = [10, 25, 50],
-  showActions = true,
-  onViewDetails,
-  onEdit,
-  onArchive,
+  onRowClick,
 }) => {
   const columns: GridColDef[] = [
     { field: 'number', headerName: 'Numéro', width: 150 },
@@ -89,38 +83,6 @@ const CourriersTable: React.FC<CourriersTableProps> = ({
         );
       }
     },
-    ...(showActions ? [{
-      field: 'actions',
-      type: 'actions' as const,
-      headerName: 'Actions',
-      width: 150,
-      getActions: (params: { row: Courrier; }) => [
-        ...(onViewDetails ? [
-          <GridActionsCellItem
-            key="view"
-            icon={<Box component="span" sx={{ color: 'primary.main' }}>👁️</Box>}
-            label="Voir détails"
-            onClick={() => onViewDetails(params.row)}
-          />
-        ] : []),
-        ...(onEdit ? [
-          <GridActionsCellItem
-            key="edit"
-            icon={<Box component="span" sx={{ color: 'info.main' }}>✏️</Box>}
-            label="Modifier"
-            onClick={() => onEdit(params.row)}
-          />
-        ] : []),
-        ...(onArchive ? [
-          <GridActionsCellItem
-            key="archive"
-            icon={<Box component="span" sx={{ color: 'default.main' }}>📁</Box>}
-            label="Archiver"
-            onClick={() => onArchive(params.row)}
-          />
-        ] : []),
-      ],
-    }] : []),
   ];
 
   return (
@@ -137,6 +99,7 @@ const CourriersTable: React.FC<CourriersTableProps> = ({
             }}
             pageSizeOptions={pageSizeOptions}
             disableRowSelectionOnClick
+            onRowClick={(params) => onRowClick?.(params.row)}
             sx={{
               '& .MuiDataGrid-cell': {
                 borderBottom: '1px solid #e0e0e0',
@@ -150,6 +113,12 @@ const CourriersTable: React.FC<CourriersTableProps> = ({
               },
               "& .MuiDataGrid-columnHeader:focus-within": {
                 outline: "none !important",
+              },
+              "& .MuiDataGrid-row": {
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "rgba(0, 0, 0, 0.04)",
+                },
               },
             }}
           />

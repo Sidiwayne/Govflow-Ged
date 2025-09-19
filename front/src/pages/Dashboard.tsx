@@ -27,6 +27,7 @@ import { Stats } from '../types/index';
 import { useAppSelector } from '../store/hooks';
 import { selectAllCourriersEntrants } from '../store/slices/courrier';
 import CourriersTable from '../components/CourriersTable';
+import { useNavigate } from 'react-router-dom';
 
 // Données de démonstration
 const mockStats: Stats = {
@@ -73,6 +74,7 @@ const StatCard: React.FC<{
 
 const Dashboard: React.FC = () => {
   const courriers = useAppSelector(selectAllCourriersEntrants);
+  const navigate = useNavigate();
 
   return (
     <Box>
@@ -145,7 +147,11 @@ const Dashboard: React.FC = () => {
                 height={400}
                 pageSize={5}
                 pageSizeOptions={[5]}
-                showActions={false}
+                onRowClick={(courrier) => {
+                  // Rediriger vers la page de détail appropriée selon le type
+                  const basePath = courrier.flow === 'entrant' ? '/courriers/entrants' : '/courriers/sortants';
+                  navigate(`${basePath}/${courrier.id}`);
+                }}
               />
             </CardContent>
           </Card>

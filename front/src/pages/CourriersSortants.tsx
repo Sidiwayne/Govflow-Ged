@@ -20,19 +20,19 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CourriersTable from '../components/CourriersTable';
 import { useAppSelector } from '../store/hooks';
-import { selectAllCourriersEntrants } from '../store/slices/courrier';
+import { selectAllCourriersSortants } from '../store/slices/courrier';
 import { Courrier } from '../types/courrier';
 
 
-const CourriersEntrants: React.FC = () => {
+const CourriersSortants: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
-  const courriers = useAppSelector(selectAllCourriersEntrants);
+  const courriers = useAppSelector(selectAllCourriersSortants);
   const navigate = useNavigate();
   
   const handleRowClick = (courrier: Courrier) => {
-    navigate(`/courriers/entrants/${courrier.id}`);
+    navigate(`/courriers/sortants/${courrier.id}`);
   };
 
   const filteredCourriers = courriers.filter(courrier => {
@@ -49,10 +49,10 @@ const CourriersEntrants: React.FC = () => {
     <Box>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" gutterBottom>
-          Courriers Entrants
+          Courriers Sortants
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Gestion des courriers reçus par l'institution
+          Gestion des courriers envoyés par l'institution
         </Typography>
       </Box>
 
@@ -144,4 +144,4 @@ const CourriersEntrants: React.FC = () => {
   );
 };
 
-export default CourriersEntrants;
+export default CourriersSortants;
