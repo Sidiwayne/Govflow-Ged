@@ -7,8 +7,13 @@ export { default as Sidebar } from './Layout/Sidebar';
 export { default as StatsCard } from './StatsCard';
 export { default as NotificationItem } from './NotificationItem';
 export { default as PDFPreview } from './PDFPreview';
-export { default as CourrierDetail } from './CourrierDetail';
 export { default as CourriersTable } from './CourriersTable';
+export { default as TransmitDialog } from './TransmitDialog';
+export { default as AddDocumentDialog } from './AddDocumentDialog';
+export { default as CourrierHeader } from './CourrierHeader';
+export { default as CourrierMetadata } from './CourrierMetadata';
+export { default as CourrierDocuments } from './CourrierDocuments';
+export { default as CourrierHistory } from './CourrierHistory';
 
 // Auth Components
 export { default as LoginForm } from './Auth/LoginForm';

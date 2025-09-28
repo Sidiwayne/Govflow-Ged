@@ -95,11 +95,6 @@ const NouveauCourrier: React.FC = () => {
     demanderAccuse: false,
   });
 
-  // Fetch entities on component mount
-  useEffect(() => {
-    dispatch(fetchEntities());
-  }, [dispatch]);
-
 
   const [uploadedFiles, setUploadedFiles] = useState<DataDocument[]>([]);
   const [dragActive, setDragActive] = useState(false);

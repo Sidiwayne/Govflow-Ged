@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Action, CourierState, Courrier, CourrierFlow } from "../../../types/courrier";
-import { fetchCourriers, createCourrier, markNodeAsRead, createAction, createNode } from "./thunks";
+import { fetchCourriers, createCourrier, markNodeAsRead, createAction, createNode, transmitCourrier } from "./thunks";
 
 const initialState: CourierState = {
     courriers: [],
@@ -116,6 +116,34 @@ const initialState: CourierState = {
               node.lu = true;
             }
           }
+        })
+        
+        // Transmit courrier
+        .addCase(transmitCourrier.pending, (state) => {
+          state.isLoading = true;
+          state.error = null;
+        })
+        .addCase(transmitCourrier.fulfilled, (state, action) => {
+          state.isLoading = false;
+          const { courierId, nodeId, action: transmitAction, nodes } = action.payload;
+          
+          // Trouver le courrier et le node source
+          const courrier = state.courriers.find(c => c.id === courierId);
+          if (courrier) {
+            const sourceNode = courrier.nodes.find(n => n.id === nodeId);
+            if (sourceNode) {
+              // Ajouter l'action de transmission au node source
+              sourceNode.actions.push(transmitAction);
+              
+              // Ajouter les nouveaux nodes de destination
+              courrier.nodes.push(...nodes);
+            }
+          }
+          state.error = null;
+        })
+        .addCase(transmitCourrier.rejected, (state, action) => {
+          state.isLoading = false;
+          state.error = action.error.message || 'Failed to transmit courrier';
         });
     },
   });

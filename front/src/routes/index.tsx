@@ -8,12 +8,14 @@ import LoginForm from '../components/Auth/LoginForm';
 import Layout from '../components/Layout/Layout';
 import { fetchCourriers } from '../store/slices/courrier/thunks';
 import { useAppDispatch } from '../store/hooks';
+import { fetchEntities } from '../store/slices/entity/thunks';
 
 const AppRoutes: React.FC = () => {
   const dispatch = useAppDispatch();
   
   useEffect(() => {
     dispatch(fetchCourriers());
+    dispatch(fetchEntities());
   }, []);
   
   return (

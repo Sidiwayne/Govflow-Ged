@@ -6,8 +6,26 @@ import {
   CreateCourrierData, 
   CreateActionData, 
   CreateNodeData,
-  DataAnnoter
+  DataAnnoter,
+  DataTransmettre
 } from '../../../types/courrier';
+import { selectAllEntities } from '../entity';
+
+// Types pour la transmission
+interface TransmitCourrierData {
+  courierId: string;
+  nodeId: string;
+  recipients: Array<{
+    entity: string;
+    user: string;
+    userId: string;
+    entityId: string;
+  }>;
+  message: string;
+  priority: string;
+  confidentialite: string;
+  additionalDocuments?: any[];
+}
 
 // Mock data for demonstration
 const mockCourriers: Courrier[] = [
@@ -31,6 +49,7 @@ const mockCourriers: Courrier[] = [
         id: 'node-1',
         courierId: '1',
         entityId: 'secretariat',
+        entityName: 'Secretariat',
         userId: '1',
         arrivalDate: '2024-01-15T10:30:00Z',
         status: 'closed',
@@ -69,6 +88,7 @@ const mockCourriers: Courrier[] = [
         userId: '2',
         arrivalDate: '2024-01-15T11:30:00Z',
         status: 'active',
+        entityName: 'Conseiller',
         lu: false,
         actions: [],
       },
@@ -336,6 +356,57 @@ const mockCreateNode = async (data: CreateNodeData): Promise<Node> => {
   return newNode;
 };
 
+const mockTransmitCourrier = async (data: TransmitCourrierData, { getState }: { getState: () => any }): Promise<{
+  action: Action;
+  nodes: Node[];
+}> => {
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  // Récupérer les entités depuis le state
+  const state = getState();
+  const entities = selectAllEntities(state);
+  
+  // Créer l'action de transmission
+  const transmitAction: Action = {
+    id: `action-transmit-${Date.now()}`,
+    nodeId: data.nodeId,
+    type: 'transmettre',
+    date: new Date().toISOString(),
+    authorId: 'current-user', // En réalité, cela viendrait du contexte d'authentification
+    data: {
+      targets: data.recipients.map(recipient => ({
+        entity: recipient.entity,
+        user: recipient.userId,
+      })),
+      message: data.message,
+    } as DataTransmettre,
+  };
+
+  // Créer les nodes pour chaque destinataire
+  const destinationNodes: Node[] = data.recipients.map((recipient, index) => {
+    // Trouver l'entité correspondante pour récupérer son nom
+    const entity = entities.find(e => e.id === recipient.entityId);
+    
+    return {
+      id: `node-${Date.now()}-${index}`,
+      courierId: data.courierId,
+      entityId: recipient.entityId,
+      entityName: entity?.name || 'Entité inconnue',
+      userId: recipient.userId,
+      arrivalDate: new Date().toISOString(),
+      status: 'active',
+      lu: false,
+      previousNodeId: data.nodeId, // Référence au node source
+      actions: [],
+    };
+  });
+
+  return {
+    action: transmitAction,
+    nodes: destinationNodes,
+  };
+};
+
 // Async thunks
 export const fetchCourriers = createAsyncThunk(
   'courrier/fetchCourriers',
@@ -374,5 +445,18 @@ export const markNodeAsRead = createAsyncThunk(
   async ({ courierId, nodeId }: { courierId: string; nodeId: string }) => {
     await new Promise(resolve => setTimeout(resolve, 200));
     return { courierId, nodeId };
+  }
+);
+
+export const transmitCourrier = createAsyncThunk(
+  'courrier/transmitCourrier',
+  async (data: TransmitCourrierData, { getState }) => {
+    const response = await mockTransmitCourrier(data, { getState });
+    return {
+      courierId: data.courierId,
+      nodeId: data.nodeId,
+      action: response.action,
+      nodes: response.nodes,
+    };
   }
 );
